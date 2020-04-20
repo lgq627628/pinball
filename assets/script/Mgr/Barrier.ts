@@ -8,16 +8,20 @@ export default class Barrier extends cc.Component {
 
     @property(cc.Label)
     label: cc.Label = null
+    @property
+    isAddType: boolean = false
 
     num: number = 0
+    isDie: boolean = false
 
     onLoad () {
+      if (this.isAddType) return
       this.initNum()
       this.initAngle()
     }
 
     initNum() {
-      this.num = Util.random(50, 100)
+      this.num = Util.random(5, 20)
       this.setNum(this.num)
     }
 
@@ -30,14 +34,27 @@ export default class Barrier extends cc.Component {
       this.label.getComponent(cc.Label).string = String(num)
     }
 
-    onBeginContact (contact, selfCollider, otherCollider) {
+    handleNormalBarrier() {
       this.num--
+      Game.mgr.addScore()
       if (this.num > 0) {
         this.setNum(this.num)
       } else {
+        this.isDie = true
         Game.mgr.removeBarrier(this.node)
       }
     }
 
+    handleAddTypeBarrier() {
+      this.isDie = true
+      let pos = this.node.position
+      Game.mgr.removeBarrier(this.node)
+      Game.mgr.addBall(pos)
+    }
+
+    onBeginContact (contact, selfCollider, otherCollider) {
+      if (this.isDie) return
+      this.isAddType ? this.handleAddTypeBarrier() : this.handleNormalBarrier()
+    }
     // update (dt) {}
 }

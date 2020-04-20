@@ -34,7 +34,7 @@ export default class Ball extends cc.Component {
       if (this.status === Config.ballStatus.UP) return
       let l = this.rigidBody.linearVelocity.mag()
       // 弹的过程中可能停住了，需要判断一下，随便给个向上的初速度
-      if (l <= 0.00001) this.rigidBody.linearVelocity = cc.v2(0, 500)
+      if (l <= 0.0000001) this.rigidBody.linearVelocity = cc.v2( Math.random() > 0.5 ? 100 : -100, 500)
     }
 
     update (dt) {
