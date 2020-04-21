@@ -1,4 +1,4 @@
-import Config from "../Common/Config";
+import {CONSTS} from "../Common/Config";
 import Util from "../Common/Util";
 import Game from "../Common/Game";
 import { BALL_STATUS } from "../Common/Enum";
@@ -46,13 +46,13 @@ export default class Ball extends cc.Component {
       this.closePhy()
       let dir = this.node.x > 0 ? 1 : -1
       let pos1 = this.node.position
-      let pos3 = cc.v2(dir * (Config.screenW/2 - this.node.width/2), - Config.screenH/2 + Config.groundH + this.node.height/2)
+      let pos3 = cc.v2(dir * (CONSTS.SCREEN_W/2 - this.node.width/2), - CONSTS.SCREEN_H/2 + CONSTS.GROUND_H + this.node.height/2)
       let pos2 = pos1.add(pos3).divSelf(2)
       pos2.y = pos1.y + 10
       cc.tween(this.node)
         .then(cc.bezierTo(0.2, [pos1, pos2, pos3]))
-        .to(.4, { position: cc.v2(dir * (Config.screenW/2 - this.node.width/2), Config.screenH/2 - 30) })
-        .to(.2, { position: cc.v2(dir * (Config.screenW/2 - 200), Config.screenH/2 - 100 ) })
+        .to(.4, { position: cc.v2(dir * (CONSTS.SCREEN_W/2 - this.node.width/2), CONSTS.SCREEN_H/2 - 30) })
+        .to(.2, { position: cc.v2(dir * (CONSTS.SCREEN_W/2 - 200), CONSTS.SCREEN_H/2 - 100 ) })
         .call(() => {
           Util.changeGroup(this.node, BALL_STATUS.UP)
           this.openPhy(cc.v2(0, 0))

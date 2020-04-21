@@ -1,5 +1,5 @@
 import Game from "./Common/Game";
-import Config from "./Common/Config";
+import {CONSTS} from "./Common/Config";
 import { BALL_STATUS } from "./Common/Enum";
 import Util from "./Common/Util";
 import Ball from "./Mgr/Ball";
@@ -28,8 +28,8 @@ export default class Main extends cc.Component {
     initGameData() {
       Game.curLevel = 1
       Game.mgr = this
-      Config.screenW = cc.winSize.width
-      Config.screenH = cc.winSize.height
+      CONSTS.SCREEN_W = cc.winSize.width
+      CONSTS.SCREEN_H = cc.winSize.height
       cc.loader.loadResDir('barrierPrefab', (err, assets) => {
         if (err) console.log(err)
         this.barrierPrefabArr = assets
@@ -48,7 +48,7 @@ export default class Main extends cc.Component {
         ball.closePhy()
         this.scheduleOnce(() => {
           cc.tween(ball.node)
-          .to(0.1, { position: Config.originBallPos })
+          .to(0.1, { position: CONSTS.ORIGIN_BALL_POS })
           .call(() => {
               let start = ball.node.position
               let dir = pos.sub(start)
@@ -63,7 +63,7 @@ export default class Main extends cc.Component {
     initBall() {
       let ball = cc.instantiate(this.ballPrefab).getComponent(Ball)
       this.node.addChild(ball.node)
-      ball.node.position = Config.originBallPos
+      ball.node.position = CONSTS.ORIGIN_BALL_POS
       Util.changeGroup(ball.node, BALL_STATUS.UP)
       ball.closePhy()
       this.ballArr.push(ball)
@@ -121,14 +121,14 @@ export default class Main extends cc.Component {
     }
 
     checkIsOver() {
-      return this.barrierArr.some(b => b.node.y > Config.originBallPos.y)
+      return this.barrierArr.some(b => b.node.y > CONSTS.ORIGIN_BALL_POS.y)
     }
 
     addBarrier() {
       let margin = 130
-      let x = - Config.screenW / 2 + margin
-      while(x < Config.screenW / 2 - margin) {
-        let y = -Config.screenH / 2 + Config.barrierH + Util.random(-60, 60)
+      let x = - CONSTS.SCREEN_W / 2 + margin
+      while(x < CONSTS.SCREEN_W / 2 - margin) {
+        let y = -CONSTS.SCREEN_H / 2 + CONSTS.BARRIER_H + Util.random(-60, 60)
         let gap = Util.random(100, 300)
         let barrier = cc.instantiate(this.barrierPrefabArr[Util.random(0, this.barrierPrefabArr.length - 1)]).getComponent(Barrier)
         this.node.addChild(barrier.node)

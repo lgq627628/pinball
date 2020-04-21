@@ -1,0 +1,1 @@
+module.exports = {"工作表1":{"1":{"fruit":"香蕉","cost":1,"num":5,"all":"1,香蕉,1,5"},"2":{"fruit":"苹果","cost":1,"num":6,"all":"2,苹果,1,6"},"3":{"fruit":"草莓","cost":1,"num":7,"all":"3,草莓,1,7"},"cs":{"fruit":"cs","cost":"cs","num":"cs","all":"cs"},"Number":{"fruit":"String","cost":"Number","num":"Number","all":"Object{\"id\":Number,\"fruit\":String,\"cost\":Number,\"num\":Number}"}}};
