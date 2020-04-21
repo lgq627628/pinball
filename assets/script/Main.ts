@@ -1,7 +1,9 @@
 import Game from "./Common/Game";
 import Config from "./Common/Config";
+import { BALL_STATUS } from "./Common/Enum";
 import Util from "./Common/Util";
 import Ball from "./Mgr/Ball";
+import Barrier from "./Mgr/Barrier";
 
 const {ccclass, property} = cc._decorator;
 
@@ -11,8 +13,8 @@ export default class Main extends cc.Component {
     @property(cc.Label)
     scoreLabel: cc.Label = null
 
-    ballArr: cc.Node[] = []
-    barrierArr: cc.Node[] = []
+    ballArr: Ball[] = []
+    barrierArr: Barrier[] = []
     barrierPrefabArr: cc.Prefab[] = []
     ballPrefab: cc.Prefab = null
 
@@ -42,34 +44,37 @@ export default class Main extends cc.Component {
     }
 
     shoot(pos) {
-      console.log(this.ballArr)
       this.ballArr.forEach((ball, i) => {
+        ball.closePhy()
         this.scheduleOnce(() => {
-          let start = ball.position
-          let dir = pos.sub(start)
-          let ts = ball.getComponent(Ball)
-          ts.openPhy(dir.mul(4))
-          ts.status = Config.ballStatus.BOUNCE
+          cc.tween(ball.node)
+          .to(0.1, { position: Config.originBallPos })
+          .call(() => {
+              let start = ball.node.position
+              let dir = pos.sub(start)
+              ball.openPhy(dir.mul(4))
+              Util.changeGroup(ball.node, BALL_STATUS.BOUNCE)
+          })
+          .start()
         }, i * 0.4)
       })
     }
 
     initBall() {
-      let ball = cc.instantiate(this.ballPrefab)
-      this.node.addChild(ball)
-      ball.position = Config.originBallPos
-      ball.getComponent(Ball).status = Config.ballStatus.UP
+      let ball = cc.instantiate(this.ballPrefab).getComponent(Ball)
+      this.node.addChild(ball.node)
+      ball.node.position = Config.originBallPos
+      Util.changeGroup(ball.node, BALL_STATUS.UP)
+      ball.closePhy()
       this.ballArr.push(ball)
     }
 
     addBall(pos) {
-      let ball = cc.instantiate(this.ballPrefab)
-      let ts = ball.getComponent(Ball)
-      this.node.addChild(ball)
-      ball.position = pos
+      let ball = cc.instantiate(this.ballPrefab).getComponent(Ball)
+      this.node.addChild(ball.node)
+      ball.node.position = pos
       this.ballArr.push(ball)
-      ts.status = Config.ballStatus.BOUNCE
-      ts.openPhy(cc.v2(0, 300))
+      Util.changeGroup(ball.node, BALL_STATUS.BOUNCE)
     }
 
     addTouchEvent() {
@@ -84,10 +89,11 @@ export default class Main extends cc.Component {
     }
 
     checkCanShoot() {
-      let canShoot = this.ballArr.every(ball => ball.getComponent(Ball).status === Config.ballStatus.UP)
+      // 也可以声明一个变量，采用计数法比较
+      let canShoot = this.ballArr.every(ball => ball.node.group === BALL_STATUS.UP)
       if (canShoot) {
         this.barrierArr.forEach(b => {
-          b.y += 150
+          b.node.y += 150
         })
         this.addBarrier()
         this.checkIsOver() ? this.replay() : this.isBouncing = false
@@ -107,16 +113,15 @@ export default class Main extends cc.Component {
     }
 
     removeAllBarrier() {
-      this.barrierArr.forEach(b => b.destroy())
+      this.barrierArr.forEach(b => b.node.destroy())
     }
 
     removeAllBall() {
-      this.ballArr.forEach(b => b.destroy())
+      this.ballArr.forEach(b => b.node.destroy())
     }
 
     checkIsOver() {
-      console.log('isOver', this.barrierArr.some(b => b.y > Config.originBallPos.y))
-      return this.barrierArr.some(b => b.y > Config.originBallPos.y)
+      return this.barrierArr.some(b => b.node.y > Config.originBallPos.y)
     }
 
     addBarrier() {
@@ -125,10 +130,10 @@ export default class Main extends cc.Component {
       while(x < Config.screenW / 2 - margin) {
         let y = -Config.screenH / 2 + Config.barrierH + Util.random(-60, 60)
         let gap = Util.random(100, 300)
-        let barrier = cc.instantiate(this.barrierPrefabArr[Util.random(0, this.barrierPrefabArr.length - 1)])
-        this.node.addChild(barrier)
-        barrier.x = x
-        barrier.y = y
+        let barrier = cc.instantiate(this.barrierPrefabArr[Util.random(0, this.barrierPrefabArr.length - 1)]).getComponent(Barrier)
+        this.node.addChild(barrier.node)
+        barrier.node.x = x
+        barrier.node.y = y
         this.barrierArr.push(barrier)
         x += gap
       }
@@ -142,11 +147,11 @@ export default class Main extends cc.Component {
       this.setScoreLabel()
     }
 
-    removeBarrier(barrier: cc.Node) {
+    removeBarrier(barrier: Barrier) {
       let idx = this.barrierArr.indexOf(barrier)
       if (idx >= 0) {
         this.barrierArr.splice(idx, 1)
-        barrier.removeFromParent(false)
+        barrier.node.removeFromParent(false)
       }
     }
 

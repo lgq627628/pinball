@@ -8,7 +8,7 @@ export default class Barrier extends cc.Component {
 
     @property(cc.Label)
     label: cc.Label = null
-    @property
+    @property(Boolean)
     isAddType: boolean = false
 
     num: number = 0
@@ -41,14 +41,15 @@ export default class Barrier extends cc.Component {
         this.setNum(this.num)
       } else {
         this.isDie = true
-        Game.mgr.removeBarrier(this.node)
+        Game.mgr.removeBarrier(this)
       }
     }
 
     handleAddTypeBarrier() {
+      // 对于只碰撞一次的小球可以把 sensor 开关打开，只发生碰撞回调，并不产生实际碰撞
       this.isDie = true
       let pos = this.node.position
-      Game.mgr.removeBarrier(this.node)
+      Game.mgr.removeBarrier(this)
       Game.mgr.addBall(pos)
     }
 
